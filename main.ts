@@ -12,11 +12,11 @@ interface FolderSettings {
 	commands: QuickAddCommandSettings[]
 }
 
-interface FileExplorerQuckAddCommansPluginSettings {
+interface FileExplorerQuickAddCommansPluginSettings {
 	folders?: FolderSettings[];
 }
 
-const DEFAULT_SETTINGS: FileExplorerQuckAddCommansPluginSettings = {
+const DEFAULT_SETTINGS: FileExplorerQuickAddCommansPluginSettings = {
 	folders: [
 		{
 			path: '01-Projects',
@@ -51,8 +51,8 @@ const DEFAULT_SETTINGS: FileExplorerQuckAddCommansPluginSettings = {
 	]
 }
 
-export default class FileExplorerQuckAddCommansPlugin extends Plugin {
-	settings: FileExplorerQuckAddCommansPluginSettings;
+export default class FileExplorerQuickAddCommansPlugin extends Plugin {
+	settings: FileExplorerQuickAddCommansPluginSettings;
 	protected quickAddAPI: any;
 
 	protected quickAdd() {
@@ -62,46 +62,54 @@ export default class FileExplorerQuckAddCommansPlugin extends Plugin {
 	}
 
 	async onload() {
-		await this.loadSettings();
-
-		this.registerEvent(this.app.workspace.on('file-menu', (menu, file, source) => {
-			if (this.settings.folders != null && this.settings.folders.length > 0) {
-				if (file instanceof TFolder) { 
-					this.settings.folders!.filter((folder: FolderSettings, i: number, array: FolderSettings[]) => {
-							let path = folder.path;
-							let starCount = 0;
-							let folderLevels;
-							let fileLevels;
-
-							while (path.endsWith('/*')) {
-								starCount++;
-								path = path.slice(0, -2);
-							}
-
-							folderLevels = path.split('/').length;
-							fileLevels = file.path.split('/').length - starCount
-
-							return (file.path.startsWith(path) && fileLevels === folderLevels);
-							
-						}).forEach((folder: FolderSettings, i: number, array: FolderSettings[]) => {
-								folder.commands.forEach((command: QuickAddCommandSettings, i: number, array: QuickAddCommandSettings[]) => {
-										menu.addItem((item) => {
-											item
-												.setTitle(command.display != null ? command.display : command.name)
-												//.setIcon("folder-plus")
-												.onClick(async () => this.quickAdd().executeChoice(command.name, {path: file.path}));
-											});
-									})
-							})
-				} else if (file instanceof TFile) {
-
+		this.app.workspace.onLayoutReady( async () => {
+				if (this.app.plugins.plugins["quickadd"] == null) {
+					new Notice('El plugin Quick Add debe estar instalado y habilitado');
+					this.unload();
+					return;
 				}
-			}
-		}));
+
+				await this.loadSettings();
+
+				this.registerEvent(this.app.workspace.on('file-menu', (menu, file, source) => {
+					if (this.settings.folders != null && this.settings.folders.length > 0) {
+						if (file instanceof TFolder) { 
+							this.settings.folders!.filter((folder: FolderSettings, i: number, array: FolderSettings[]) => {
+									let path = folder.path;
+									let starCount = 0;
+									let folderLevels;
+									let fileLevels;
+
+									while (path.endsWith('/*')) {
+										starCount++;
+										path = path.slice(0, -2);
+									}
+
+									folderLevels = path.split('/').length;
+									fileLevels = file.path.split('/').length - starCount
+
+									return (file.path.startsWith(path) && fileLevels === folderLevels);
+									
+								}).forEach((folder: FolderSettings, i: number, array: FolderSettings[]) => {
+										folder.commands.forEach((command: QuickAddCommandSettings, i: number, array: QuickAddCommandSettings[]) => {
+												menu.addItem((item) => {
+													item
+														.setTitle(command.display != null ? command.display : command.name)
+														//.setIcon("folder-plus")
+														.onClick(async () => this.quickAdd().executeChoice(command.name, {path: file.path}));
+													});
+											})
+									})
+						} else if (file instanceof TFile) {
+
+						}
+					}
+				}));
+			});
 	}
 
 	onunload() {
-
+		console.log('Descargado');
 	}
 
 	async loadSettings() {

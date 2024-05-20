@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "file-explorer-quick-add-commands",
+	"name": "File Explorer Quick Add Commands",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Enables calling Quick Add Commands from File Explorer, passing folder path.",
+	"author": "Reinaldo Aru",
+	"authorUrl": "https://github.com/reinaldoaaru",
+	"fundingUrl": "https://github.com/reinaldoaaru",
 	"isDesktopOnly": false
 }
